@@ -9,6 +9,13 @@
 #include <map>
 #include <set>
 
+std::string sutvarkytiURL(std::string& zodis){
+    const std::string skyryba = "()[]{}<>\"'.,;:!?";
+    std::size_t a = zodis.find_first_not_of(skyryba);
+    if (a == std::string::npos) return "";
+    std::size_t b = zodis.find_last_not_of(skyryba);
+    return zodis.substr(a, b - a + 1);
+}
 
 std::string sutvarkytZodi(std::string& zodis){
     std::string rezultatas;
@@ -94,12 +101,13 @@ void crossReferenceLentele(std::string input){
 
 void rastiURL(std::string input){
     std::set<std::string> sarasas;
-    std::regex pattern("^(https?:\\/\\/|www\\.)");
+    std::regex pattern("^(https?:\\/\\/|www\\.|([A-Za-z0-9-]+\\.)+[A-Za-z]{2,})");
 
     std::ifstream in(input);
 
     std::string zodis;
     while(in >> zodis){
+        zodis = sutvarkytiURL(zodis);
         if(!zodis.empty() && regex_search(zodis, pattern)){
             sarasas.insert(zodis);
         }
