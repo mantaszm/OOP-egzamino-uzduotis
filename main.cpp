@@ -15,13 +15,10 @@ int main(){
     char pasirinkimas;
     std::cin >> pasirinkimas;
     
-    std::string in("text.txt"), out("output.txt");
+    std::string in;
     
     std::cout << "Ivesties failas:\n";
-    //std::cin >> in;
-
-    std::cout << "Isvesties failas:\n";
-    //std::cin >> out;
+    std::cin >> in;
 
     switch (pasirinkimas)
     {
