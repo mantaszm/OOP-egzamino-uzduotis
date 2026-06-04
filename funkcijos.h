@@ -99,31 +99,43 @@ void crossReferenceLentele(std::string input){
     return;
 }
 
-void rastiURL(std::string input){
+void rastiURL(const std::string& input) {
+    std::set<std::string> tldSarasas;
+    std::ifstream f("tld_sarasas.txt");
+    std::string eilute;
+    while (std::getline(f, eilute))
+        if (!eilute.empty())
+            tldSarasas.insert(eilute);
+
     std::set<std::string> sarasas;
-    std::regex pattern("^(https?:\\/\\/|www\\.|([A-Za-z0-9-]+\\.)+[A-Za-z]{2,})");
+    std::regex pattern(
+        R"((https?://|www\.)?([A-Za-z0-9]([A-Za-z0-9\-]*[A-Za-z0-9])?\.)+([A-Za-z]{2,})(/\S*)?)"
+    );
 
     std::ifstream in(input);
+    if (!in.is_open()) return;
 
     std::string zodis;
-    while(in >> zodis){
+    while (in >> zodis) {
         zodis = sutvarkytiURL(zodis);
-        if(!zodis.empty() && regex_search(zodis, pattern)){
-            sarasas.insert(zodis);
+        if (zodis.empty()) continue;
+
+        std::smatch match;
+        if (std::regex_search(zodis, match, pattern)) {
+            std::string tldStr = match[4].str();
+            std::transform(tldStr.begin(), tldStr.end(), tldStr.begin(), ::toupper);
+
+            if (tldSarasas.count(tldStr))
+                sarasas.insert(match[0].str());
         }
     }
     in.close();
 
     std::ofstream out(std::filesystem::path(input).stem().string() + "_urls.txt");
-
-    if(sarasas.empty()){
+    if (sarasas.empty()) {
         out << "Nera URLS\n";
         return;
     }
-
-    for(std::string url : sarasas){
+    for (const auto& url : sarasas)
         out << url << "\n";
-    }
-
-    return;
 }
